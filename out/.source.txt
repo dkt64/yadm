@@ -13,7 +13,6 @@
 
 .const CODE_START_ADDRESS	= $0810
 .const DEMO_SCRIPT_ADDRESS	= $8000
-.const DEMO_INIT_ADDRESS	= $8100
 
 .const CHARSET_ADDRESS	= $4000
 .const SCREEN_ADDRESS	= $6000
@@ -48,7 +47,7 @@
 
 .const	IRQ_ZP		= $02	// zajmuje 4
 .const	PTR_ZP		= $06	// zajmuje 4
-.const	script_ptr	= $0A
+.const	SCRIPT_ZP		= $0A	// zajmuje 2
 
 // ====================================================================================================================
 // Basic i start programu
@@ -68,7 +67,10 @@ start:
 	sta $d011
 	sta $d020
 	sta $d021
-	sta script_ptr
+	lda #<DEMO_SCRIPT_ADDRESS
+	sta SCRIPT_ZP
+	lda #>DEMO_SCRIPT_ADDRESS
+	sta SCRIPT_ZP+1
 
 	// Czyścimy tylko raz na początku 6400-8000 dla sprajtów
 	FillMem(0, FREEMEM_ADDRESS, FREEMEM_PAGES, PTR_ZP)
@@ -108,15 +110,17 @@ start:
 irq0:
 	IrqEntry2(IRQ_ZP)
 
-	ldy script_ptr
+	ldy SCRIPT_PTR
 script_loop:
-	lda script_tab,y
+	lda (SCRIPT_ZP),y
 	bmi rozkaz
 	tax
 	iny
-	lda script_tab,y
+	lda (SCRIPT_ZP),y
 	sta $d000,x
 	iny
+	bne script_loop
+	inc SCRIPT_ZP+1
 	bne script_loop
 
 rozkaz:
@@ -128,10 +132,12 @@ rozkaz:
 	and #$07
 	tax
 	iny
-	lda script_tab,y
+	lda (SCRIPT_ZP),y
 	sta SCREEN_ADDRESS+$3f8,x
 	iny
-	jmp script_loop
+	bne script_loop
+	inc SCRIPT_ZP+1
+	bne script_loop
 
 !:	iny
 
@@ -140,11 +146,13 @@ rozkaz:
 	//
 	cmp #SCRIPT_CMD_D012
 	bne !+
-	lda script_tab,y
+	lda (SCRIPT_ZP),y
 	cmp $d012
 	bne *-3
 	iny
-	jmp script_loop
+	bne script_loop
+	inc SCRIPT_ZP+1
+	bne script_loop
 
 	//
 	// NOP
@@ -152,46 +160,9 @@ rozkaz:
 !:	cmp #SCRIPT_CMD_NOP
 	bne !+
 	iny
-	jmp script_loop
-
-	//
-	// zwiększenie zmiennej w skrypcie
-	//
-!:	cmp #SCRIPT_CMD_INC
-	bne !+
-	ldx script_tab,y
-	inc script_tab,x
-	iny
-	jmp script_loop
-
-	//
-	// zmniejszenie zmiennej w skrypcie
-	//
-!:	cmp #SCRIPT_CMD_DEC
-	bne !+
-	ldx script_tab,y
-	dec script_tab,x
-	iny
-	jmp script_loop
-
-	//
-	// skok
-	//
-!:	cmp #SCRIPT_CMD_JMP
-	bne !+
-	lda script_tab,y
-	and #$fe
-	tay
-	jmp script_loop
-
-	//
-	// SYNC
-	//
-!:	cmp #SCRIPT_CMD_SYNC
-	bne !+
-	Sync()
-	iny
-	jmp script_loop
+	bne script_loop
+	inc SCRIPT_ZP+1
+	bne script_loop
 
 	//
 	// New line
@@ -201,10 +172,64 @@ rozkaz:
 	lda $d012
 	cmp $d012
 	beq *-3
-	ldx script_tab,y
+	lda (SCRIPT_ZP),y
+	tax
+	// ldx script_tab,y
 	dex
 	bpl *-1
 	iny
+	bne script_loop
+	inc SCRIPT_ZP+1
+	bne script_loop
+
+// 	//
+// 	// zwiększenie zmiennej w skrypcie
+// 	//
+// !:	cmp #SCRIPT_CMD_INC
+// 	bne !+
+// 	ldx script_tab,y
+// 	inc script_tab,x
+// 	iny
+// 	bne script_loop1
+// 	inc SCRIPT_ZP+1
+// 	jmp script_loop
+
+// 	//
+// 	// zmniejszenie zmiennej w skrypcie
+// 	//
+// !:	cmp #SCRIPT_CMD_DEC
+// 	bne !+
+// 	ldx script_tab,y
+// 	dec script_tab,x
+// 	iny
+// 	bne script_loop1
+// 	inc SCRIPT_ZP+1
+// 	jmp script_loop
+
+	//
+	// skok
+	//
+!:	cmp #SCRIPT_CMD_JMP
+	bne !+
+	lda (SCRIPT_ZP),y
+	and #$fe
+	tay
+	bne script_loop
+	inc SCRIPT_ZP+1
+	jmp script_loop
+
+	//
+	// SYNC
+	//
+!:	cmp #SCRIPT_CMD_SYNC
+	bne !+
+	Sync()
+	iny
+	bne script_loop1
+	inc SCRIPT_ZP+1
+	jmp script_loop
+
+script_loop1:
 	jmp script_loop
 
 	//
@@ -212,21 +237,27 @@ rozkaz:
 	//
 !:	cmp #SCRIPT_CMD_IRQ
 	bne !+
-	lda script_tab,y
+	lda (SCRIPT_ZP),y
 	sta $d012
 	iny
-	sty script_ptr
-	jmp irq_finish
+	sty SCRIPT_PTR
+	bne irq_finish
+	inc SCRIPT_ZP+1
+	bne irq_finish
 
 	//
 	// koniec skryptu
 	//
 !:	cmp #SCRIPT_CMD_END
 	bne irq_finish
-	lda script_tab,y
+	lda (SCRIPT_ZP),y
 	sta $d012
 	lda #0
-	sta script_ptr
+	sta SCRIPT_PTR
+	// lda #<DEMO_SCRIPT_ADDRESS
+	// sta SCRIPT_ZP
+	lda #>DEMO_SCRIPT_ADDRESS
+	sta SCRIPT_ZP+1
 
 irq_finish:
 	IrqExit2(IRQ_ZP)
@@ -246,16 +277,16 @@ script_tab:
 	.byte $2e // SCRIPT_VIC               Kolor sprajta nr 0
 	.byte $0f // SCRIPT_DATA              Jasny szary
 var1:	.byte $00 // SCRIPT_VIC               Pozycja X LO sprajta nr 0
-	.byte $00 // SCRIPT_DATA              $18
+	.byte $30 // SCRIPT_DATA              $18
 	.byte $10 // SCRIPT_VIC               Pozycja X HI sprajta nr 0
 	.byte $00 // SCRIPT_DATA              $00
 	.byte $01 // SCRIPT_VIC               Pozycja Y sprajta nr 0
 	.byte $32 // SCRIPT_DATA              $32
 
-	.byte $A0 // SCRIPT_CMD_INC           Zwiększenie pozycji X
-	.byte [var1-script_tab+1] //          Indeks w tablicy skryptu
-	.byte $A1 // SCRIPT_CMD_DEC           Zmniejszenie pozycji X
-	.byte [var2-script_tab+1] //          Indeks w tablicy skryptu
+	// .byte $A0 // SCRIPT_CMD_INC           Zwiększenie pozycji X
+	// .byte [var1-script_tab+1] //          Indeks w tablicy skryptu
+	// .byte $A1 // SCRIPT_CMD_DEC           Zmniejszenie pozycji X
+	// .byte [var2-script_tab+1] //          Indeks w tablicy skryptu
 
 	.byte $93 // SCRIPT_CMD_IRQ           Dodatkowe przerwanie
 	.byte $2f // SCRIPT_DATA              Linia $2F
@@ -266,8 +297,8 @@ var1:	.byte $00 // SCRIPT_VIC               Pozycja X LO sprajta nr 0
 
 	.byte $90 // SCRIPT_CMD_D012          Czekaj na $D012
 	.byte $50 // SCRIPT_DATA              Linia $50
-var2:	.byte $00 // SCRIPT_VIC               Pozycja X LO sprajta nr 0
-	.byte $00 // SCRIPT_DATA              $18
+// var2:	.byte $00 // SCRIPT_VIC               Pozycja X LO sprajta nr 0
+// 	.byte $00 // SCRIPT_DATA              $18
 	.byte $01 // SCRIPT_VIC               Pozycja Y sprajta nr 0
 	.byte $62 // SCRIPT_DATA              $62
 

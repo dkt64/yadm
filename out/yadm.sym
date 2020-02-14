@@ -1,10 +1,10 @@
-.label script_loop=$89b
-.label var2=$8018
+.label script_loop1=$924
+.label script_loop=$8a1
 .label var1=$8006
 .label start=$810
 .label script_tab=$8000
-.label irq0=$890 {
+.label irq0=$896 {
 }
-.label rozkaz=$8ab
-.label irq_finish=$945 {
+.label rozkaz=$8b3
+.label irq_finish=$94a {
 }
