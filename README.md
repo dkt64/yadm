@@ -23,7 +23,7 @@ SCRIPT_CMD_END           = $FF             Linia rastra              Koniec skry
 SCRIPT_DATA              = $00-$FF         Parametr                  Wartość parametru
 
 ## PRZYKŁAD
-`
+```
 	* = TAB "Demo script"
 
 	.byte $15 // SCRIPT_VIC               Włączenie sprajta nr 0
@@ -68,7 +68,7 @@ var2:	.byte $00 // SCRIPT_VIC               Pozycja X LO sprajta nr 0
 
 	.byte $ff // SCRIPT_CMD_END           Koniec skryptu (zapętlenie)
 	.byte IRQ0_LINE // SCRIPT_DATA        Linia rastra
-`
+```
 ## TODO
 - rozkaz: zmiana banku
 - wyliczanie adresu wskaźników do sprajtów na podstawie D018
