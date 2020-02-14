@@ -34,6 +34,7 @@
 .const SCRIPT_CMD_INC	= $A0
 .const SCRIPT_CMD_DEC	= $A1
 
+.const SCRIPT_CMD_NOP	= $FD
 .const SCRIPT_CMD_JMP	= $FE
 .const SCRIPT_CMD_END	= $FF
 
@@ -142,6 +143,14 @@ rozkaz:
 	lda script_tab,y
 	cmp $d012
 	bne *-3
+	iny
+	jmp script_loop
+
+	//
+	// NOP
+	//
+!:	cmp #SCRIPT_CMD_NOP
+	bne !+
 	iny
 	jmp script_loop
 

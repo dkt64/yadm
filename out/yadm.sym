@@ -6,5 +6,5 @@
 .label irq0=$890 {
 }
 .label rozkaz=$8ab
-.label irq_finish=$93d {
+.label irq_finish=$945 {
 }

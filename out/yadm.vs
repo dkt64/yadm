@@ -5,5 +5,5 @@ al C:89b .script_loop
 al C:80b .upstartEnd
 al C:8ab .rozkaz
 al C:8018 .var2
-al C:93d .irq_finish
+al C:945 .irq_finish
 al C:8006 .var1
