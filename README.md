@@ -1,15 +1,15 @@
-YADM (Yet Another Demo Maker) by DKT / Samar Productions @ 2020
+# YADM (Yet Another Demo Maker) by DKT / Samar Productions @ 2020
 
-RAM LAYOUT
+## RAM LAYOUT
 
 BMP $4000-$6000 Bitmapa
 SCR $6000-$6400 Kolory dla hires
 SPR $6400-$8000 Miejsce na sprajty
 TAB $8000-$8100 Skrypt
 
-TABELA ROZKAZÓW
+## TABELA ROZKAZÓW
 
-Rozkaz                     Wartość         Parametr                  Opis
+### Rozkaz                     Wartość         Parametr                  Opis
 SCRIPT_VIC               = $00-$2F         Rejestr VIC               Sterowanie rejestrami VIC
 SCRIPT_PTR               = $80-$87         Nr sprajta                Sterowanie wskaźnikami sprajtów
 SCRIPT_CMD_D012          = $90             Linia rastra              Czekanie na linię rastra
@@ -22,8 +22,8 @@ SCRIPT_CMD_JMP           = $FE             Numer bajtu w skrypcie    Skok do now
 SCRIPT_CMD_END           = $FF             Linia rastra              Koniec skryptu (skok do początku)
 SCRIPT_DATA              = $00-$FF         Parametr                  Wartość parametru
 
-PRZYKŁAD
-
+## PRZYKŁAD
+`
 	* = TAB "Demo script"
 
 	.byte $15 // SCRIPT_VIC               Włączenie sprajta nr 0
@@ -68,7 +68,7 @@ var2:	.byte $00 // SCRIPT_VIC               Pozycja X LO sprajta nr 0
 
 	.byte $ff // SCRIPT_CMD_END           Koniec skryptu (zapętlenie)
 	.byte IRQ0_LINE // SCRIPT_DATA        Linia rastra
-
-TODO
+`
+## TODO
 - rozkaz: zmiana banku
 - wyliczanie adresu wskaźników do sprajtów na podstawie D018
