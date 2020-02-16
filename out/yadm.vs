@@ -1,10 +1,10 @@
-al C:918 .ptr2
-al C:948 .script_loop1
+al C:902 .ptr2
+al C:932 .script_loop1
 al C:8000 .script_tab
-al C:901 .ptr1
+al C:8eb .ptr1
 al C:810 .start
-al C:88c .irq0
-al C:897 .script_loop
+al C:876 .irq0
+al C:881 .script_loop
 al C:80b .upstartEnd
-al C:8a9 .rozkaz
-al C:96e .irq_finish
+al C:893 .rozkaz
+al C:958 .irq_finish

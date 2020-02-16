@@ -67,13 +67,14 @@ start:
 	sta $d011
 	sta $d020
 	sta $d021
+	sta SCRIPT_PTR
 	lda #<DEMO_SCRIPT_ADDRESS
 	sta SCRIPT_ZP
 	lda #>DEMO_SCRIPT_ADDRESS
 	sta SCRIPT_ZP+1
 
 	// Czyścimy tylko raz na początku 6400-8000 dla sprajtów
-	FillMem(0, FREEMEM_ADDRESS, FREEMEM_PAGES, PTR_ZP)
+	// FillMem(0, FREEMEM_ADDRESS, FREEMEM_PAGES, PTR_ZP)
 
 	Sync()
 
@@ -93,7 +94,6 @@ start:
 	SetD018(CHARSET_ADDRESS, SCREEN_ADDRESS)
 
 	IrqSetup(IRQ0_LINE, irq0)
-
 	cli
 	jmp *
 
@@ -281,50 +281,53 @@ irq_finish:
 */
 // ===================================================================
 
+	* = FREEMEM_ADDRESS
+	.import binary "data\demo.prg",2
+
 	* = DEMO_SCRIPT_ADDRESS "Demo script"
 script_tab:
-	.byte SCRIPT_PTR+0,[(FREEMEM_ADDRESS & $3fff)/$40]+0
-	.byte SCRIPT_PTR+1,[(FREEMEM_ADDRESS & $3fff)/$40]+1
-	.byte SCRIPT_PTR+2,[(FREEMEM_ADDRESS & $3fff)/$40]+2
-	.byte SCRIPT_PTR+3,[(FREEMEM_ADDRESS & $3fff)/$40]+3
-	.byte SCRIPT_PTR+4,[(FREEMEM_ADDRESS & $3fff)/$40]+4
-	.byte SCRIPT_PTR+5,[(FREEMEM_ADDRESS & $3fff)/$40]+5
-	.byte SCRIPT_PTR+6,[(FREEMEM_ADDRESS & $3fff)/$40]+6
-	.byte SCRIPT_PTR+7,[(FREEMEM_ADDRESS & $3fff)/$40]+7
-	.byte $00,0
-	.byte $01,0
-	.byte $02,0
-	.byte $03,0
-	.byte $04,0
-	.byte $05,0
-	.byte $06,0
-	.byte $07,0
-	.byte $08,0
-	.byte $09,0
-	.byte $0a,0
-	.byte $0b,0
-	.byte $0c,0
-	.byte $0d,0
-	.byte $0e,0
-	.byte $0f,0
-	.byte $27,1
-	.byte $28,1
-	.byte $29,1
-	.byte $2a,1
-	.byte $2b,1
-	.byte $2c,1
-	.byte $2d,1
-	.byte $2e,1
+	// .byte SCRIPT_PTR+0,[(FREEMEM_ADDRESS & $3fff)/$40]+0
+	// .byte SCRIPT_PTR+1,[(FREEMEM_ADDRESS & $3fff)/$40]+1
+	// .byte SCRIPT_PTR+2,[(FREEMEM_ADDRESS & $3fff)/$40]+2
+	// .byte SCRIPT_PTR+3,[(FREEMEM_ADDRESS & $3fff)/$40]+3
+	// .byte SCRIPT_PTR+4,[(FREEMEM_ADDRESS & $3fff)/$40]+4
+	// .byte SCRIPT_PTR+5,[(FREEMEM_ADDRESS & $3fff)/$40]+5
+	// .byte SCRIPT_PTR+6,[(FREEMEM_ADDRESS & $3fff)/$40]+6
+	// .byte SCRIPT_PTR+7,[(FREEMEM_ADDRESS & $3fff)/$40]+7
+	// .byte $00,0
+	// .byte $01,0
+	// .byte $02,0
+	// .byte $03,0
+	// .byte $04,0
+	// .byte $05,0
+	// .byte $06,0
+	// .byte $07,0
+	// .byte $08,0
+	// .byte $09,0
+	// .byte $0a,0
+	// .byte $0b,0
+	// .byte $0c,0
+	// .byte $0d,0
+	// .byte $0e,0
+	// .byte $0f,0
+	// .byte $27,1
+	// .byte $28,1
+	// .byte $29,1
+	// .byte $2a,1
+	// .byte $2b,1
+	// .byte $2c,1
+	// .byte $2d,1
+	// .byte $2e,1
 
-	.fill $200,$ff
-	// #import "inc\script.asm"
+	// .fill $200,$ff
+	// // #import "inc\script.asm"
 		
 // ===================================================================
 // Art Studio BMP
 // ===================================================================
 
 	* = CHARSET_ADDRESS "Art studio gfx (bmp)"
-	.import binary "data\gfx-hires.art",2,$2000
+	.import binary "data\cx60cy70cz07_2.art",2,$2000
 	* = SCREEN_ADDRESS "Art studio gfx (col)"
-	.import binary "data\gfx-hires.art",2+$1f40,$3e8
+	.import binary "data\cx60cy70cz07_2.art",2+$1f40,$3e8
 
