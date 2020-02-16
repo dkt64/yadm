@@ -18,11 +18,13 @@ SCRIPT_CMD_D012          = $90             Linia rastra              Czekanie na
 SCRIPT_CMD_SYNC          = $91             -                         VSYNC
 SCRIPT_CMD_NEWLINE       = $92             Opóźnienie                Czekanie na kolejną pozycję rastra + delay (eliminacja glitch)
 SCRIPT_CMD_IRQ           = $93             Linia rastra              Nowe przerwanie
-SCRIPT_CMD_INC           = $A0             Numer bajtu w skrypcie    Zwiększenie (INC) na bajcie w skrypcie
-SCRIPT_CMD_DEC           = $A1             Numer bajtu w skrypcie    Zmniejszenie (DEC) na bajcie w skrypcie
+SCRIPT_CMD_INC           = $A0             Numer bajtu w skrypcie    Zwiększenie (INC) na bajcie w skrypcie (w aktualnej stronie skryptu)
+SCRIPT_CMD_DEC           = $A1             Numer bajtu w skrypcie    Zmniejszenie (DEC) na bajcie w skrypcie (w aktualnej stronie skryptu)
+SCRIPT_CMD_NOP           = $FD             -                         Przykład: zastąpienie kodu i wypełnienie luki
 SCRIPT_CMD_JMP           = $FE             Numer bajtu w skrypcie    Skok do nowej pozycji w skrypcie (AND #$FE tylko parzyste wartości)
 SCRIPT_CMD_END           = $FF             Linia rastra              Koniec skryptu (skok do początku)
 SCRIPT_DATA              = $00-$FF         Parametr                  Wartość parametru
+
 ```
 ## PRZYKŁAD
 ```
