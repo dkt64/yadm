@@ -1,11 +1,22 @@
-.label script_loop1=$932
-.label script_loop=$881
+.label col_neg=$902
+.label neg_st=$8a1
+.label script_loop1=$9cc
+.label script_loop=$91b
+.label fin=$8d0
+.label neg_en=$8ab
+.label neg=$8d8
+.label ptr2x=$99c
+.label cont=$8bb
 .label start=$810
-.label ptr2=$902
+.label bmp_neg=$891
+.label dekod=$89f
+.label src_col=$8e6
+.label ptr1x=$985
 .label script_tab=$8000
-.label ptr1=$8eb
-.label irq0=$876 {
+.label irq0=$910 {
 }
-.label rozkaz=$893
-.label irq_finish=$958 {
+.label get_colors=$879
+.label rozkaz=$92d
+.label dst_col=$8f4
+.label irq_finish=$9f2 {
 }

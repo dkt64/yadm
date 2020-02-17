@@ -45,9 +45,16 @@
 // Zeropage
 // ===================================================================
 
-.const	IRQ_ZP		= $02	// zajmuje 4
-.const	PTR_ZP		= $06	// zajmuje 4
-.const	SCRIPT_ZP		= $0A	// zajmuje 2
+.const IRQ_ZP		= $02	// zajmuje 4
+.const PTR_ZP		= $06	// zajmuje 4
+.const SCRIPT_ZP		= $0A	// zajmuje 2
+
+.const ptr1		= $10
+.const ptr1l		= ptr1
+.const ptr1h		= ptr1+1
+.const ptr2		= $12
+.const ptr2l		= ptr2
+.const ptr2h		= ptr2+1
 
 // ====================================================================================================================
 // Basic i start programu
@@ -76,6 +83,8 @@ start:
 	// Czyścimy tylko raz na początku 6400-8000 dla sprajtów
 	// FillMem(0, FREEMEM_ADDRESS, FREEMEM_PAGES, PTR_ZP)
 
+	jsr get_colors
+
 	Sync()
 
 	lda $dc0d
@@ -97,6 +106,88 @@ start:
 	cli
 	jmp *
 
+// ===================================================================
+// get_colors
+// ===================================================================
+
+get_colors:
+
+	lda #<SCREEN_ADDRESS
+	sta ptr1l
+	lda #>SCREEN_ADDRESS
+	sta ptr1h
+	lda #<CHARSET_ADDRESS
+	sta ptr2l
+	lda #>CHARSET_ADDRESS
+	sta ptr2h
+	ldx #0
+	ldy #[dst_col-src_col]
+	jsr bmp_neg
+
+	rts
+
+// ===================================================================
+// Zmiana kolorów bitmapy i negacja
+// ===================================================================
+
+bmp_neg:
+	stx neg_st+1
+	sty neg_en+1
+	
+	lda ptr1h
+	clc
+	adc #4
+	sta fin+1
+	
+dekod:	ldy #$00
+neg_st:	ldx #0
+!:	lda (ptr1),y
+	cmp src_col,x
+	beq !+
+	inx
+neg_en:	cpx #2
+	bne !-
+	beq cont
+!:	lda dst_col,x
+	sta (ptr1),y
+	lda col_neg,x
+	bne neg
+
+cont:
+	inc ptr1l
+	bne !+
+	inc ptr1h
+!:	lda ptr2l
+	clc
+	adc #8
+	sta ptr2l
+	lda ptr2h
+	adc #0
+	sta ptr2h
+	
+	lda ptr1h
+fin:	cmp #>(SCREEN_ADDRESS+$400)
+	beq !+
+	jmp dekod
+!:
+	rts
+
+neg:
+	ldy #$07
+!:	lda (ptr2),y
+	eor #$ff
+	sta (ptr2),y
+	dey
+	bpl !-
+	jmp cont
+	
+src_col:
+	.byte $e3,$e0,$90,$ed,$3d,$29,$20,$cd,$c0,$28,$c1,$81,$08,$01
+dst_col:
+	.byte $3e,$0e,$09,$de,$d3,$92,$02,$dc,$0c,$82,$1c,$18,$80,$10
+col_neg:
+	.byte $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
+	
 // ===================================================================
 // irq
 // ===================================================================
@@ -184,8 +275,8 @@ rozkaz:
 	lda (SCRIPT_ZP),y
 	tax
 	lda SCRIPT_ZP+1
-	sta ptr1+1
-	inc ptr1:script_tab,x
+	sta ptr1x+1
+	inc ptr1x:script_tab,x
 	iny
 	bne script_loop1
 	inc SCRIPT_ZP+1
@@ -199,8 +290,8 @@ rozkaz:
 	lda (SCRIPT_ZP),y
 	tax
 	lda SCRIPT_ZP+1
-	sta ptr2+1
-	dec ptr2:script_tab,x
+	sta ptr2x+1
+	dec ptr2x:script_tab,x
 	iny
 	bne script_loop1
 	inc SCRIPT_ZP+1
